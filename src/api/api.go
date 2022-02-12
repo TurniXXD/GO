@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/TurniXXD/GO/env"
 )
 
 type Article struct {
@@ -35,6 +37,6 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 func HandleRequests() {
 	http.HandleFunc("/", homePage)
 	http.HandleFunc("/articles", allArticles)
-	println("\nserving on port 8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	println("\nserving on port " + env.Process("GO_API_PORT"))
+	log.Fatal(http.ListenAndServe(":"+env.Process("GO_API_PORT"), nil))
 }
