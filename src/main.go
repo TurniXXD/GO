@@ -7,6 +7,7 @@ import (
 	dt "github.com/TurniXXD/GO/dataTypes"
 	funcs "github.com/TurniXXD/GO/functions"
 	rout "github.com/TurniXXD/GO/goroutines"
+	m "github.com/TurniXXD/GO/maps"
 	"github.com/TurniXXD/GO/math"
 )
 
@@ -18,7 +19,7 @@ func main() {
 	ct.ConvertTypes()
 	math.Math()
 	rout.Goroutines()
-
+	m.Maps()
 	// Must be last
 	api.HandleRequests()
 }

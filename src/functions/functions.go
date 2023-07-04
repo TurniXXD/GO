@@ -1,7 +1,12 @@
 package functions
 
+// First-class function => function that is treated like any other variable
+// Higher order function => function that takes another function as an argument, may be used in http handlers
+// Function currying => function takes a new function as an argument, may be used in middleware
+
 import (
 	"fmt"
+	"math"
 	"os"
 	"reflect"
 )
@@ -96,6 +101,47 @@ func deferredListFunc() {
 	}
 }
 
+// Interface groups types together based on their methods
+// For type to be classified as interface it needs to have all methods of an interface
+type shape interface {
+	area() float64
+}
+
+type circle struct {
+	radius float64
+}
+
+// Now every circle var has this function
+func (c circle) area() float64 {
+	return math.Pi * c.radius * c.radius
+}
+
+func printShapeInfo(s shape) {
+	fmt.Printf("area of shape %T is: %0.2f \n", s, s.area())
+}
+
+// Curried function
+// someName takes a function someFunc that takes two int arguments and returns an int.
+func someName(someFunc func(int, int) int) func(int) int {
+	return func(x int) int {
+		return someFunc(x, 2)
+	}
+}
+
+func addFunc(a, b int) int {
+	return a + b
+}
+
+func curriedFunc() {
+	// Creating a curried function using someName and the add function as an argument.
+
+	// Calling the curried function addTwo with an argument.
+	newFunc := someName(addFunc)
+	result := newFunc(3)
+
+	fmt.Println("Curried function result:", result) // Output: 5
+}
+
 // To export a func first letter of a func needs to be a capital letter
 func Functions() {
 	fmt.Println("\nFunctions: ")
@@ -144,4 +190,10 @@ func Functions() {
 
 	deferFunc()
 	deferredListFunc()
+
+	circle1 := circle{radius: 5.0}
+	fmt.Printf("area of circle with radius: %0.2f is %0.2f \n", circle1.radius, circle1.area())
+	printShapeInfo(circle1)
+
+	curriedFunc()
 }

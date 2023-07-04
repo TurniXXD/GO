@@ -35,6 +35,7 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 
 // capitalize letters to make function publically available
 func HandleRequests() {
+	// Higher order function
 	http.HandleFunc("/", homePage)
 	http.HandleFunc("/articles", allArticles)
 	println("\nserving on port " + env.Process("GO_API_PORT"))

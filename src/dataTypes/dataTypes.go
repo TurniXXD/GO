@@ -2,7 +2,9 @@ package dataTypes
 
 import (
 	// formatting strings and console prints
+	"bytes"
 	"fmt"
+
 	// mathematical operations
 	"math"
 )
@@ -11,13 +13,54 @@ import (
 var varString string = "string"
 
 func varStringFunc() {
+	// One char in string is byte that uses binary representation of decimal number in ASCII
+	// Otherwise string is grapheme decimal number that uses standard unicode
+	// In unicode we can also combine codes like code 128077 👍 + 127999 🟫 generates 👍🏿, this is called emoji modifier
+	// We then convert graphemes to binary, this operation is called unicode encoding
 	// or shorthand, type is defined by assignement, can only be used inside of a function
-	varString1 := "string"
-	fmt.Println("\nfunc shorthand string: ", varString1)
+	// UTF-8 uses one byte for ASCII characters and two and more bytes for unicode characters
+	// "e" has one unicode point and "ě" has two unicode points
+	interpretedString := "string is\n here"
+	rawString := `string is\n here`
+	fmt.Printf("\ninterpreted: %s, \nunicode byte: %v", interpretedString, []byte(interpretedString))
+	fmt.Printf("\nraw: %s, \nunicode byte: %v\n", rawString, []byte(rawString))
+
+	// Strings are immutable and can only be changed by assigning a new value
+	// It doesn't allow you to create a pointer to any individual byte in a string
+	// When you assign a new value both variable value and its pointer address will be updated to new one
+	// Original string still exist in memory until it is no longer referenced by any variables,
+	// at which point it will be eligible for garbage collection
+	interpretedString = "hello👋"
+
+	// len() returns number of bytes
+	// UTF-8 is a variable encoding and some characters can take more than one byte
+	fmt.Println(interpretedString, " ", len(interpretedString))
+
+	// In Go string is just a slice of bytes
+	// Slice is mutable
+	bytesString := []byte(interpretedString)
+	fmt.Println(len(bytesString), cap(bytesString))
+	fmt.Println(string(bytesString))
+	fmt.Println(bytesString)
+
+	// When a string is converted to a run slice, the bytes stored in the string will be viewed as UTF-8 encoded byte sequence representations of many unicode code points
+	// Bad UTF-8 encoding representations will be converted to a rune value for the unicode replacement character
+	runesString := []rune(interpretedString)
+	fmt.Println(len(runesString), cap(runesString))
+
+	// You can convert byte slice to rune slice
+	runesString = bytes.Runes(bytesString)
+	fmt.Println(string(runesString))
+	fmt.Println(runesString)
+
+	// In these types of conversions value is not copied
 }
 
 var varInt int = 69
 
+// When you pass a string variable to a function, Go creates a copy of the variable and passes it to the function.
+// This is known as pass by value.
+// Any changes made to the copy inside the function do not affect the original variable outside the function.
 func varIntFunc(n int) {
 	fmt.Println("\nfunc int: ", n)
 }
@@ -52,9 +95,53 @@ func pointers() {
 	fmt.Println("\nupdated value without pointer:", name)
 }
 
+func byteType() {
+
+}
+
+func runeType() {
+	// Go alias for int32
+	// It's intended to store unicode code point
+
+	// Graphemes that fit in one unicode code can be specified within single quotes
+	var data rune = '👍'
+	fmt.Println(data)          //int32
+	fmt.Printf("\n%c\n", data) // with format specifier
+
+	// Graphemes that require more than one unicode code point cannot be stored in rune var
+	var dataMultiPoint string = "👍🏿"
+	fmt.Println(len([]rune(dataMultiPoint))) // 2 unicode code points
+	fmt.Println(" ", len(dataMultiPoint))
+
+	r := rune(0x1F60A) // Assigning a Unicode code point using type conversion
+	fmt.Printf("\nrune2: %c\n", r)
+
+	fmt.Printf("%c, %c, %c, %c, %c",
+		97, // 97 is the code point for 'a'
+		// Rune values
+		'\141', // octal
+		'\x61', // hex
+		'\u0061',
+		'\U00000061',
+	)
+}
+
 // Prints
 func DataTypes() {
 	fmt.Println("\nData types: ")
+	// %v is the default format, can be used with any type of variable
+	// %d represents the value a decimal integer
+	// %c is used for rune variables. It represents the value as the Unicode character corresponding to the given code point. The rune type holds a Unicode code point, and %c interprets that code point and displays the corresponding character.
+	// %s is for strings
+	// %f is for floating-point variables
+	// %t is for boolean variables
+	// %b is for binary representation of integers
+	// %o is for octal representation of integers
+	// %x is for hexadecimal representation of integers
+	// %p is for pointer variables and represents value as a pointer address
+	// %e is for scientific representation of floating-point variables
+	// %T is for printing out name of variable type
+
 	varStringFunc()
 	varIntFunc(69)
 	pointers()
@@ -69,4 +156,6 @@ func DataTypes() {
 	fmt.Println(savedString)
 
 	fmt.Println(circleArea(6.9))
+
+	runeType()
 }

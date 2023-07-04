@@ -59,7 +59,7 @@ func unbufferedChanCommunication(done <-chan bool) {
 			return
 		default:
 			fmt.Println("main goroutine code")
-			time.Sleep(time.Second * 1)
+			time.Sleep(time.Millisecond * 250)
 		}
 	}
 }
@@ -70,7 +70,7 @@ func syncGoroutinesCommunication() {
 
 	go unbufferedChanCommunication(done)
 
-	time.Sleep(time.Second * 5)
+	time.Sleep(time.Millisecond * 1000)
 
 	close(done)
 }
@@ -97,7 +97,7 @@ func sq(in <-chan int) <-chan int {
 
 	go func() {
 		for n := range in {
-			time.Sleep(time.Second * 1)
+			time.Sleep(time.Millisecond * 500)
 			// Stage 2 chan accepts data from stage 1 chan
 			out <- n * n
 			fmt.Printf("\nstage 2 channel read\n")

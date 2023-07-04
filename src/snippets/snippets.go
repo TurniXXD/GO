@@ -198,3 +198,29 @@ func FindDifferentItems(compareToArray *[]string, itemsArray *[]string) *[]strin
 
 	return &diff
 }
+
+func ConcateStrings() (result string) {
+	// This is not optimized, because each operation causes a new memory allocation
+	for i := 0; i < 1000; i++ {
+		result += "test"
+	}
+
+	// Instead create list of strings and then joint all of them at once
+	buffer := make([]string, 0, 1000)
+	for i := 0; i < 1000; i++ {
+		buffer = append(buffer, "test")
+	}
+
+	result = strings.Join(buffer, "")
+
+	// Or use builder from standard library https://github.com/golang/go/blob/master/src/strings/builder.go
+	// This doesn't expose the underlying byte slice it uses as buffer, bytes.Buffer has its own method which returns its internal buffer
+	// Builder also has checks that the builder values are not copied
+	var standardStringBuffer strings.Builder
+	for i := 0; i < 1000; i++ {
+		standardStringBuffer.WriteString("test")
+	}
+
+	result = standardStringBuffer.String()
+	return
+}
