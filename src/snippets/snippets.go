@@ -1,4 +1,4 @@
-package functions
+package snippets
 
 import (
 	"crypto/rand"
@@ -57,11 +57,11 @@ func IsValidHttpsUrl(input string) (err error) {
 	u, parseErr := url.Parse(input)
 
 	if err != nil || !match || parseErr != nil {
-		return fmt.Errorf("IsValidHttpsUrl", fmt.Sprintf("error: %v is not valid url", input))
+		return fmt.Errorf("IsValidHttpsUrl, %s", fmt.Sprintf("error: %v is not valid url", input))
 	}
 
 	if u.Scheme != "https" {
-		return fmt.Errorf("IsValidHttpsUrl", "only https URLs are allowed")
+		return fmt.Errorf("IsValidHttpsUrl, %s", "only https URLs are allowed")
 	}
 
 	return nil
@@ -105,7 +105,7 @@ func GenerateSecureString(stringType string) *string {
 	randomBytes := make([]byte, stringLength)
 	_, err := rand.Read(randomBytes)
 	if err != nil {
-		fmt.Errorf("GenerateSecureString", err.Error())
+		fmt.Printf("GenerateSecureString %s", err.Error())
 	}
 
 	if stringType == SecureStringType.Hash ||
@@ -173,7 +173,7 @@ func CreateSquashedFile(src, out, file string) {
 	squashedFileContent := squashFiles(src)
 	err := CreateFile(out, file, []byte(squashedFileContent))
 	if err != nil {
-		fmt.Errorf("CreateSquashedFile", err.Error())
+		fmt.Printf("CreateSquashedFile %s", err.Error())
 	}
 }
 
@@ -199,26 +199,32 @@ func FindDifferentItems(compareToArray *[]string, itemsArray *[]string) *[]strin
 	return &diff
 }
 
-func ConcateStrings() (result string) {
+func ConcateStrings(in string) (result string) {
 	// This is not optimized, because each operation causes a new memory allocation
 	for i := 0; i < 1000; i++ {
-		result += "test"
+		result += in
 	}
+	return
+}
 
+func ConcateStringsWithBuffer(in string) (result string) {
 	// Instead create list of strings and then joint all of them at once
 	buffer := make([]string, 0, 1000)
 	for i := 0; i < 1000; i++ {
-		buffer = append(buffer, "test")
+		buffer = append(buffer, in)
 	}
 
 	result = strings.Join(buffer, "")
+	return
+}
 
+func ConcateStringsWithStringBuilder(in string) (result string) {
 	// Or use builder from standard library https://github.com/golang/go/blob/master/src/strings/builder.go
 	// This doesn't expose the underlying byte slice it uses as buffer, bytes.Buffer has its own method which returns its internal buffer
 	// Builder also has checks that the builder values are not copied
 	var standardStringBuffer strings.Builder
 	for i := 0; i < 1000; i++ {
-		standardStringBuffer.WriteString("test")
+		standardStringBuffer.WriteString(in)
 	}
 
 	result = standardStringBuffer.String()

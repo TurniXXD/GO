@@ -124,6 +124,7 @@ func pipeline() {
 	}
 }
 
+// Goroutine is a independent path of execution
 func Goroutines() {
 	fmt.Println("\nGoroutines: ")
 

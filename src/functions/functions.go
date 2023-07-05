@@ -7,6 +7,7 @@ package functions
 import (
 	"fmt"
 	"math"
+	"math/big"
 	"os"
 	"reflect"
 )
@@ -116,8 +117,15 @@ func (c circle) area() float64 {
 	return math.Pi * c.radius * c.radius
 }
 
+// If we want to update receiver value declare it as pointer receiver, otherwise value wouldn't be updated
+func (c *circle) setDefaultRadius() {
+	c.radius = 4.0
+}
+
 func printShapeInfo(s shape) {
 	fmt.Printf("area of shape %T is: %0.2f \n", s, s.area())
+
+	fmt.Println()
 }
 
 // Curried function
@@ -140,6 +148,111 @@ func curriedFunc() {
 	result := newFunc(3)
 
 	fmt.Println("Curried function result:", result) // Output: 5
+}
+
+type user struct {
+	name    string
+	isAdmin bool
+}
+
+func deferKeyword(users map[string]user, name string) (log string) {
+	// Defer creates operation that will happen right before the return of a function
+	src, err := os.Open("someFile")
+	if err != nil {
+		return
+	}
+
+	// It is mostly used for cleanup and closing instances so we don't waste resources
+	defer src.Close()
+
+	defer delete(users, name)
+
+	user, ok := users[name]
+	if !ok {
+		// instead of specifying this before every return
+		// delete(users, name)
+		return "not found"
+	}
+	if user.isAdmin {
+		// delete(users, name)
+		return "admin deleted"
+	}
+	// delete(users, name)
+	return "user deleted"
+}
+
+// Closure function references variables from outside its own function body
+// The function may access and assign to the referenced variables
+func concatter() func(string) string {
+	// When we call concatter we're saving reference to this doc variable
+	doc := ""
+	// Every subsequent call to this function will keep adding on words into doc
+	return func(word string) string {
+		doc += word + " "
+		return doc
+	}
+}
+
+func emailSender() func(string, string) int {
+	userCount := make(map[string]int)
+
+	return func(user, content string) int {
+		fmt.Printf("send email '%s' to user %s, ", content, user)
+		userCount[user]++
+		return userCount[user]
+	}
+
+}
+
+// Closure function can mutate a variable outside its own function body
+// Function then has acces to a mutable reference to the original value
+func closureFunc() {
+	wordAggregator := concatter()
+
+	wordAggregator("Welcome")
+	wordAggregator("Jacob")
+	fmt.Println(wordAggregator("here!"))
+
+	emailCounter := emailSender()
+	emailCounter("Denis", "Hello worker")
+	emailCounter("Bob", "Hello man")
+	emailCounter("James", "Hello firefighter")
+	emailCounter("James", "How are you firefighter")
+	fmt.Println(emailCounter("James", "Hello doctor"))
+}
+
+func FibInt(n int) int {
+	if n < 2 {
+		return n
+	}
+
+	a, b := 0, 1
+	for n--; n > 0; n-- {
+		a += b
+		a, b = b, a
+	}
+
+	return b
+}
+
+func FibBig(n uint64) *big.Int {
+	if n < 2 {
+		return big.NewInt(int64(n))
+	}
+
+	a, b := big.NewInt(0), big.NewInt(1)
+	for n--; n > 0; n-- {
+		a.Add(a, b)
+		a, b = b, a
+	}
+
+	return b
+}
+
+// These functions are referenced in native_functions_test.go file
+func NativeFunctions() {
+	fmt.Println(FibInt(30)) // 832040
+	fmt.Println(FibBig(30)) // 832040
 }
 
 // To export a func first letter of a func needs to be a capital letter
@@ -194,6 +307,26 @@ func Functions() {
 	circle1 := circle{radius: 5.0}
 	fmt.Printf("area of circle with radius: %0.2f is %0.2f \n", circle1.radius, circle1.area())
 	printShapeInfo(circle1)
+	circle1.setDefaultRadius()
+	printShapeInfo(circle1)
 
 	curriedFunc()
+
+	users := make(map[string]user)
+	users["jerry"] = user{
+		name:    "jerry",
+		isAdmin: false,
+	}
+
+	users["daniel"] = user{
+		name:    "daniel",
+		isAdmin: true,
+	}
+
+	deferKeyword(users, "jerry")
+	deferKeyword(users, "daniel")
+
+	closureFunc()
+
+	NativeFunctions()
 }

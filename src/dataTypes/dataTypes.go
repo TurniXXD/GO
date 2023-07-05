@@ -75,27 +75,69 @@ func circleArea(r float64) float64 {
 // Pointers
 // function cannot access values of other functions or other variables outside function
 // for that we use pointers that point to variable's address in memory
+// Don't use pointers until we are sure we need them, it is only address to memory but it is stored in heap mememory so access to this is slower
+// Param is type pointer type with int as base
 func updateWithPointer(x *string) {
 	*x = "James"
 }
 
+// This won't work becuase we are working with copy of value
 func updateWithoutPointer(x string) {
 	x = "John"
 }
 
+type person struct {
+	name string
+	age  int8
+}
+
+// In this case we are returning pointer address to value initialized in subsequent function, but it's useless becuase we cannot be sure what this points to in main function, so go creates copy of m var in heap, so the address stays the same but instead of stack the variable is saved in heap
+// Avoid this at all costs because heap is a lot slower to access
+// Running the program with -m gives you a way to analyze storage location of variables
+func initPerson() *person {
+	m := person{name: "jack", age: 12}
+	fmt.Printf("%p", &m)
+	return &m
+}
+
+// Only use pointers when:
+// 1. We want to update value of variable passed in function
+// 2. We're working with large data (File or big array) that are getting called a lot and we want optimize memory
 func pointers() {
+	i, j := 42, 2701
+
+	// Pointer to address in memory of var i
+	p := &i
+
+	// Dereferncing value of var i
+	fmt.Println(*p, i)
+	fmt.Printf("%T\n", p)
+	*p = 21
+	fmt.Println(i)
+
+	p = &j
+	*p = *p / 37
+	fmt.Println(j)
+
 	name := "Jack"
 	memoryName := &name
+
+	// Every pointer is 8 bytes
 	fmt.Println("\noriginal value:", name)
 	fmt.Println("memory address:", memoryName)
 	fmt.Println("value at memory address:", *memoryName)
-	updateWithPointer(memoryName)
-	fmt.Println("\nupdated value with pointer:", name)
-	updateWithoutPointer(name)
-	fmt.Println("\nupdated value without pointer:", name)
-}
 
-func byteType() {
+	updateWithPointer(memoryName)
+
+	fmt.Println("\nupdated value with pointer:", name)
+
+	updateWithoutPointer(name)
+
+	fmt.Println("\nupdated value without pointer:", name)
+
+	newPerson := initPerson()
+
+	fmt.Printf("\nInit person, %v, %p", newPerson, newPerson)
 
 }
 
