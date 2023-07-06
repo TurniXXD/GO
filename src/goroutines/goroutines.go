@@ -3,6 +3,8 @@ package goroutines
 import (
 	"fmt"
 	"time"
+
+	snip "github.com/TurniXXD/GO/snippets"
 )
 
 func bufferedChanCommunication() {
@@ -20,13 +22,13 @@ func bufferedChanCommunication() {
 
 	charChannel <- "First write"
 	charChannel <- "Second write"
-	// Channel now has capacity of 2 occupied
 
+	// Channel now has length of 2 occupied
 	fmt.Println(len(charChannel))
 
 	fmt.Println(<-charChannel)
 	fmt.Println(<-charChannel)
-	// Channel now has capacity of 0 occupied after its data is read
+	// Channel now has length of 0 occupied after its data is read
 
 	fmt.Println(len(charChannel))
 
@@ -124,11 +126,47 @@ func pipeline() {
 	}
 }
 
+func sequentialStringBuilder() {
+	snip.ConcateStringsWithStringBuilder("test1")
+	snip.ConcateStringsWithStringBuilder("test2")
+}
+
+func concurrentStringBuilder() {
+	go snip.ConcateStringsWithStringBuilder("test1")
+	snip.ConcateStringsWithStringBuilder("test2")
+}
+
+func waitForDatabasesBootup(databasesCount int8, databasesReadyChan chan struct{}) {
+	for i := 0; i < int(databasesCount); i++ {
+		<-databasesReadyChan
+	}
+}
+
+func bootDb(dbChan chan struct{}) {
+	time.Sleep(time.Millisecond * 500)
+	fmt.Println("Db booted")
+	dbChan <- struct{}{}
+}
+
 // Goroutine is a independent path of execution
+// Goroutine is managed by go runtime and it has flexible stack of 2KB
+// Thread is managed by OS and it has flexible stack of 1MB
 func Goroutines() {
 	fmt.Println("\nGoroutines: ")
+	dbChan := make(chan struct{})
+
+	go bootDb(dbChan)
+	time.Sleep(time.Millisecond * 250)
+	go bootDb(dbChan)
+
+	waitForDatabasesBootup(2, dbChan)
 
 	bufferedChanCommunication()
 	syncGoroutinesCommunication()
 	pipeline()
+
+	sequentialStringBuilder()
+	concurrentStringBuilder()
+
+	mutexes()
 }
